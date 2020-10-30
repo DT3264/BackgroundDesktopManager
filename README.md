@@ -4,7 +4,7 @@ Set wallpapers inside a folder and it's subfolders
 ```
 > backgroundManager.exe <path> <seconds>
 ```
-Where <path> is a path to a folder and <seconds> the interval of each wallpaper
+Where `path` is a path to a folder and `seconds` the interval of each wallpaper
 
 Notes: 
 - If an image has "ignore" in the name or extension, it would be ignored
