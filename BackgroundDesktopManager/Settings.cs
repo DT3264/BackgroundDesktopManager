@@ -1,18 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 namespace BackgroundDesktopManager
 {
     public class Settings
     {
-        public string folderPath { get; set; }
+        public List<string> folders { get; set; }
         public string lastFile { get; set; }
         public int interval { get; set; }
         public Settings(string[] args)
         {
+            folders = new List<string>();
+            for(int i=0; i<args.Length; i++)
+            {
+                if(args[i].Equals("-l")) folders.Add(args[i+1]);
+                if(args[i].Equals("-t")) interval = int.Parse(args[i+1]) * 1000;
+            }
             if (!File.Exists("lastFile.txt")) File.Create("lastFile.txt");
-            folderPath = args[0];
             lastFile = File.ReadAllText("lastFile.txt");
-            interval = int.Parse(args[1])*1000;
         }
         public void writeLastFile()
         {

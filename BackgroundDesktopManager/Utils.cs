@@ -58,12 +58,15 @@ namespace BackgroundDesktopManager
         private string[] getImagesInPath()
         {
             List<string> list = new List<string>();
-            foreach (string picture in Directory.GetFiles(settings.folderPath, "*.*", SearchOption.AllDirectories))
+            foreach (string directory in settings.folders)
             {
-                if (picture.Contains("ignore")) continue;
-                if (Regex.IsMatch(picture, ".jpg|.jpeg|.png|.gif|.tiff|.bmp|.svg$"))
+                foreach (string picture in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
                 {
-                    list.Add(picture);
+                    if (picture.Contains("ignore")) continue;
+                    if (Regex.IsMatch(picture, ".jpg|.jpeg|.png|.gif|.tiff|.bmp|.svg$"))
+                    {
+                        list.Add(picture);
+                    }
                 }
             }
             return list.ToArray();

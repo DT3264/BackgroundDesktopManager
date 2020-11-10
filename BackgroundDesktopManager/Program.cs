@@ -10,7 +10,6 @@ namespace BackgroundDesktopManager
         [STAThread]
         private static void Main(string[] args)
         {
-            args = new string[] { @"C:\Users\Dani\Pictures\FondosLap", "5" };
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             utils = new Utils(new Settings(args));
