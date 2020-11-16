@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Linq;
+
 namespace BackgroundDesktopManager
 {
     public class Utils
@@ -14,12 +15,13 @@ namespace BackgroundDesktopManager
         {
             this.settings = settings;
             iad = shlobj.GetActiveDesktop();
-            files = getImagesInPath();
+            files = getImagesInDirectories();
             nextImageIdx = getIndexOfLastOrNear();
             setNextImage();
         }
         private void setImage(string path)
         {
+            if (!File.Exists(path)) return;
             iad.SetWallpaper(path, 0);
             iad.ApplyChanges(AD_Apply.SAVE | AD_Apply.HTMLGEN | AD_Apply.REFRESH | AD_Apply.FORCE | AD_Apply.BUFFERED_REFRESH);
         }
@@ -55,21 +57,38 @@ namespace BackgroundDesktopManager
             
         }
 
-        private string[] getImagesInPath()
+        bool isPicture(string path, string[] extensions)
         {
-            List<string> list = new List<string>();
-            foreach (string directory in settings.folders)
+            foreach(var extension in extensions)
             {
-                foreach (string picture in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
-                {
-                    if (picture.Contains("ignore")) continue;
-                    if (Regex.IsMatch(picture, ".jpg|.jpeg|.png|.gif|.tiff|.bmp|.svg$"))
-                    {
-                        list.Add(picture);
-                    }
-                }
+                if (path.EndsWith(extension)) return true;
             }
-            return list.ToArray();
+            return false;
+        }
+
+        private string[] getImagesInDirectory(string path)
+        {
+            var extensions = new string[] { ".jpg", ".jpeg", ".png", ".gif", ".tiff", ".bmp", ".svg" };
+            var files = new DirectoryInfo(path)
+                .GetFiles("*.*")
+                .Where(x => isPicture(x.FullName, extensions))
+                .OrderByDescending(x => x.CreationTime)
+                .Select(x => x.FullName);
+            return files.ToArray();
+        }
+
+        private string[] getImagesInDirectories()
+        {
+            var fullPicturesList = new List<string>();
+            settings.folders.ForEach( dir => {
+                var innerDirectories = new DirectoryInfo(dir).GetDirectories();
+                foreach(var innerDirectory in innerDirectories)
+                {
+                    fullPicturesList.AddRange(getImagesInDirectory(innerDirectory.FullName));
+                }
+            });
+            fullPicturesList.ForEach(p => Console.WriteLine(p));
+            return fullPicturesList.ToArray();
         }
         private int getIndexOfLastOrNear()
         {
