@@ -27,13 +27,11 @@ namespace BackgroundDesktopManager
         }
         public void setNextImage()
         {
-
             nextImageIdx++;
             if (nextImageIdx >= files.Length)
             {
                 nextImageIdx = 0;
             }
-
             setImage(files[nextImageIdx]);
             settings.lastFile = files[nextImageIdx];
 
@@ -87,19 +85,36 @@ namespace BackgroundDesktopManager
                     fullPicturesList.AddRange(getImagesInDirectory(innerDirectory.FullName));
                 }
             });
-            fullPicturesList.ForEach(p => Console.WriteLine(p));
             return fullPicturesList.ToArray();
         }
         private int getIndexOfLastOrNear()
         {
+            int bestMatch = 0;
+            int bestIndex = 0;
+            Console.WriteLine("For " + settings.lastFile);
             for (int i = 0; i < files.Length; i++)
             {
-                if (files[i].CompareTo(settings.lastFile) >= 0)
+                int match=getMatch(settings.lastFile, files[i]);
+                Console.WriteLine(string.Format("Match between\n{0} & \n{1} -> {2}", settings.lastFile, files[i], match));
+                if (match > bestMatch)
                 {
-                    return i-1;
+                    bestMatch = match;
+                    bestIndex = i;
                 }
             }
-            return -1;
+            Console.WriteLine("Best match: " + files[bestIndex] + " with " + bestMatch);
+            return bestIndex-1;
+        }
+
+        private int getMatch(string path1, string path2)
+        {
+            int lastMatch = 0;
+            for(int i=0; i<Math.Min(path1.Length, path2.Length); i++)
+            {
+                if (path1[i] == path2[i]) lastMatch = i;
+                else break;
+            }
+            return lastMatch;
         }
     }
 }
